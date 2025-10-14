@@ -61,6 +61,8 @@ past_year_df %<>%
 
 Cache County Library has seen an increase in its number of card holders and Libby users above and beyond the growth in population this past year. Physical visits were slightly down, but use of electronic services was up. 
 
+Since 2025 still has a couple of months it's numbers haven't been included here, but the number of program participants has already surpassed 5,000, the number of new accounts is already above 2024's by over 120, and the number of Libby users continues to rise.
+
 ```{r}
 overview <- past_year_df %>%
   filter(
@@ -111,7 +113,7 @@ overview %>%
 
 ## Services
 
-Use of all services is up from last year, aside from slight dips in visits and computer sessions. Libby use in particular has seen a significant increase.
+Use of all services is up from last year, aside from slight dips in visits and computer sessions. Libby use in particular has seen a significant increase. 
 
 ```{r}
 services <- past_year_df %>%
@@ -348,37 +350,39 @@ highchart() %>%
   hc_plotOptions(series = list(marker = list(enabled = TRUE)))
 ```
 
-## Visits
+## Patrons
 
-While visits were down in 2024, there were still more than 21,500 people who came to the Cache County Library physically. Digital material use - e.g., Libby - has increased which may mean that some people are using library services remotely rather than coming in person. 
+While visits were down in 2024, there were still more than 21,500 people who came to the Cache County Library physically. Digital material use - e.g., Libby - has increased which may mean that some people are using library services remotely rather than coming in person. The number of patron accounts has steadily increased across the years, and patrons are also coming in to use the computers at the library.
 
 ```{r}
 visits_graph <- cache %>%
   filter(Year %in% c(2021:2024)) %>%
-  mutate(
-    value = as.numeric(
-      Physical.Visits
-    )
-  )
+  reframe(
+    Year = Year,
+    `Physical Visits` = Physical.Visits,
+    `Accounts` = All.Accounts,
+    `Libby Users` = Libby.Users,
+    `Computer Uses` = Computer.Users,
+  ) %>%
+  pivot_longer(!Year, names_to = "Metric", values_to = "value")
 
 # Create highchart
 highchart() %>%
   hc_add_series(
     visits_graph,
     type = "line",
-    hcaes(x = Year, y = value),
-    showInLegend = F
+    hcaes(x = Year, y = value, group = Metric)
   ) %>%
   hc_tooltip(
     pointFormat = paste0(
-      "<b>Visits:</b> {point.y:,.0f}<br>",
+      "<b>{point.Metric}:</b> {point.y:,.0f}<br>",
       "{point.x}"
     ),
     headerFormat = ""
   ) %>%
   hc_xAxis(allowDecimals = FALSE) %>%
-  hc_yAxis(title = list(text = "Visits")) %>%
-  hc_title(text = "Visits Over Time") %>%
+  hc_yAxis(title = list(text = "Count")) %>%
+  hc_title(text = "Patron Use Over Time") %>%
   hc_plotOptions(series = list(marker = list(enabled = TRUE)))
 ```
 
@@ -421,7 +425,7 @@ highchart() %>%
 
 ## Program Participation
 
-Program participation has remained steady for the past several years, with over 2,000 people benefiting from library programs.
+Program participation has remained steady for the past several years, with over 2,000 people benefiting from library programs. Since 2025 still has a few months it hasn't been included here, but the number of program participants has already passed 5,000.
 
 ```{r}
 program_graph <- cache %>%
@@ -473,7 +477,7 @@ staff_handle <- cache %>%
     Population = Population.of.Legal.Service.Area,
     Physical.Visits,
     Accounts = All.Accounts,
-    Circulation = Total.Circulation,
+    Checkouts = Total.Circulation,
     Program.Participants = Total.Programming.Participants
   ) %>%
   pivot_longer(
