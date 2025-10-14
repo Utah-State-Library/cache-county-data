@@ -1,0 +1,512 @@
+---
+title: "Cache County Library"
+format: html
+theme: sandstone
+execute:
+    echo: false
+    message: false
+---
+
+
+```{r}
+#| label: setup
+#| warning: false
+library(tidyverse)
+library(magrittr)
+library(ggplot2)
+library(reactable)
+library(reactablefmtr)
+library(scales)
+library(highcharter)
+
+hcoptslang <- getOption("highcharter.lang")
+hcoptslang$thousandsSep <- ","
+options(highcharter.lang = hcoptslang)
+```
+
+```{r}
+cache <- read.csv("./Cache County Library Stats.csv")
+utpls <- readRDS("./utpls.RDS")
+```
+
+
+## 2024 Statistics for Cache County Library
+
+```{r}
+past_year_df <- cache %>%
+  filter(Year %in% c("2023", "2024"))
+
+past_year_df %<>%
+  pivot_longer(
+    !c(Year),
+    names_to = "Metric",
+    values_to = "y"
+  ) %>%
+  pivot_wider(
+    names_from = "Year",
+    names_glue = "v_{Year}",
+    values_from = "y"
+  )
+
+past_year_df %<>%
+  mutate(diff_pct = round(((v_2024 - v_2023) / v_2023), 4))
+
+past_year_df %<>%
+  mutate(Metric_pretty = gsub("\\.", " ", Metric))
+```
+
+::: {.panel-tabset}
+
+## Library at a Glance
+
+Cache County Library has seen an increase in its number of card holders and Libby users above and beyond the growth in population this past year. Physical visits were slightly down, but use of electronic services was up. 
+
+```{r}
+overview <- past_year_df %>%
+  filter(
+    Metric_pretty %in%
+      c(
+        "Population of Legal Service Area",
+        "Budget",
+        "Full Time Staff",
+        "Part Time Staff",
+        "Physical Visits",
+        "Libby Users",
+        "All Accounts",
+        "Total Programming Participants"
+      )
+  ) %>%
+  select(Metric_pretty, v_2023, v_2024, diff_pct)
+
+overview %>%
+  reactable(
+    resizable = T,
+    defaultExpanded = F,
+    compact = T,
+    striped = T,
+    defaultColDef = colDef(
+      align = "left",
+    ),
+    theme = reactableTheme(
+      backgroundColor = "transparent",
+      headerStyle = list(borderColor = "#555")
+    ),
+    columns = list(
+      Metric_pretty = colDef(name = ""),
+      v_2023 = colDef(
+        name = "2023",
+        format = colFormat(separators = TRUE)
+      ),
+      v_2024 = colDef(
+        name = "2024",
+        format = colFormat(separators = TRUE)
+      ),
+      diff_pct = colDef(
+        name = "Change from Last Year",
+        format = colFormat(percent = TRUE, digits = 2)
+      )
+    )
+  )
+```
+
+## Services
+
+Use of all services is up from last year, aside from slight dips in visits and computer sessions. Libby use in particular has seen a significant increase.
+
+```{r}
+services <- past_year_df %>%
+  filter(
+    Metric_pretty %in%
+      c(
+        "All Accounts",
+        "New Accounts",
+        "Physical Visits",
+        "Libby Users",
+        "Computer Users",
+        "ILLs Received"
+      )
+  ) %>%
+  select(Metric_pretty, v_2023, v_2024, diff_pct)
+
+services %>%
+  reactable(
+    resizable = T,
+    defaultExpanded = F,
+    compact = T,
+    striped = T,
+    defaultColDef = colDef(
+      align = "left",
+    ),
+    theme = reactableTheme(
+      backgroundColor = "transparent",
+      headerStyle = list(borderColor = "#555")
+    ),
+    columns = list(
+      Metric_pretty = colDef(name = ""),
+      v_2023 = colDef(
+        name = "2023",
+        format = colFormat(separators = TRUE)
+      ),
+      v_2024 = colDef(
+        name = "2024",
+        format = colFormat(separators = TRUE)
+      ),
+      diff_pct = colDef(
+        name = "Change from Last Year",
+        format = colFormat(percent = TRUE, digits = 2)
+      )
+    )
+  )
+```
+
+## Budget
+
+Cache County Library had a total budget increase of about $24,000 in 2024, and was able to put more money into both the physical and digital collections for patron use.
+
+```{r}
+budget <- past_year_df %>%
+  filter(
+    Metric_pretty %in%
+      c(
+        "Budget",
+        "Physical Collection Cost",
+        "Digital Collection Cost"
+      )
+  ) %>%
+  select(Metric_pretty, v_2023, v_2024, diff_pct)
+
+budget %>%
+  reactable(
+    resizable = T,
+    defaultExpanded = F,
+    compact = T,
+    striped = T,
+    defaultColDef = colDef(
+      align = "left",
+    ),
+    theme = reactableTheme(
+      backgroundColor = "transparent",
+      headerStyle = list(borderColor = "#555")
+    ),
+    columns = list(
+      Metric_pretty = colDef(name = ""),
+      v_2023 = colDef(
+        name = "2023",
+        format = colFormat(separators = TRUE, prefix = "$")
+      ),
+      v_2024 = colDef(
+        name = "2024",
+        format = colFormat(separators = TRUE, prefix = "$")
+      ),
+      diff_pct = colDef(
+        name = "Change from Last Year",
+        format = colFormat(percent = TRUE, digits = 2)
+      )
+    )
+  )
+```
+
+
+
+## Circulation
+
+Circulation of Kits and Libby materials both saw an increase from 2023 to 2024, and while physical checkouts are slightly down there were still over 42,000 items checked out by patrons. 
+
+```{r}
+circ <- past_year_df %>%
+  filter(
+    Metric_pretty %in%
+      c(
+        "Physical Holdings Added",
+        "Digital Holdings Added",
+        "Physical Checkouts",
+        "Libby Checkouts",
+        "DVD Checkouts",
+        "Kit Checkouts",
+        "Telescope Checkouts",
+        "Total Circulation"
+      )
+  ) %>%
+  select(Metric_pretty, v_2023, v_2024, diff_pct)
+
+circ %>%
+  reactable(
+    resizable = T,
+    defaultExpanded = F,
+    compact = T,
+    striped = T,
+    defaultColDef = colDef(
+      align = "left",
+    ),
+    theme = reactableTheme(
+      backgroundColor = "transparent",
+      headerStyle = list(borderColor = "#555")
+    ),
+    columns = list(
+      Metric_pretty = colDef(name = ""),
+      v_2023 = colDef(
+        name = "2023",
+        format = colFormat(separators = TRUE)
+      ),
+      v_2024 = colDef(
+        name = "2024",
+        format = colFormat(separators = TRUE)
+      ),
+      diff_pct = colDef(
+        name = "Change from Last Year",
+        format = colFormat(percent = TRUE, digits = 2)
+      )
+    )
+  )
+```
+
+## Programs
+
+The overall number of programming participants has remained steady compared to the previous year, with over 2,000 people attending programs offered by the Cache County Library. Many of these attendants are children attending Storytime. The Library's Summer Reading Program had an increase of over 100 participants in 2024.
+
+```{r}
+programs <- past_year_df %>%
+  filter(
+    Metric_pretty %in%
+      c(
+        "Total Programming Participants",
+        "Storytime Participants",
+        "Summer Reading Participants"
+      )
+  ) %>%
+  select(Metric_pretty, v_2023, v_2024, diff_pct)
+
+programs %>%
+  reactable(
+    resizable = T,
+    defaultExpanded = F,
+    compact = T,
+    striped = T,
+    defaultColDef = colDef(
+      align = "left",
+    ),
+    theme = reactableTheme(
+      backgroundColor = "transparent",
+      headerStyle = list(borderColor = "#555")
+    ),
+    columns = list(
+      Metric_pretty = colDef(name = ""),
+      v_2023 = colDef(
+        name = "2023",
+        format = colFormat(separators = TRUE)
+      ),
+      v_2024 = colDef(
+        name = "2024",
+        format = colFormat(separators = TRUE)
+      ),
+      diff_pct = colDef(
+        name = "Change from Last Year",
+        format = colFormat(percent = TRUE, digits = 2)
+      )
+    )
+  )
+```
+
+:::
+
+
+## Trends Over Time
+
+::: {.panel-tabset}
+
+## Population of Legal Service Area
+
+Cache County Library serves all people in the county, but particularly those people who don't already have city library service. This graph shows the population in Cache County that is not already served by another library. The Utah State Library defines this as the library's Legal Service Area. 
+
+```{r}
+population_graph <- cache %>%
+  filter(Year %in% c(2021:2024)) %>%
+  mutate(
+    value = as.numeric(
+      Population.of.Legal.Service.Area
+    )
+  )
+
+# Create highchart
+highchart() %>%
+  hc_add_series(
+    population_graph,
+    type = "line",
+    hcaes(x = Year, y = value),
+    showInLegend = F
+  ) %>%
+  hc_tooltip(
+    pointFormat = paste0(
+      "<b>Population:</b> {point.y:,.0f}<br>",
+      "{point.x}"
+    ),
+    headerFormat = ""
+  ) %>%
+  hc_xAxis(allowDecimals = FALSE) %>%
+  hc_yAxis(title = list(text = "Population of Legal Service Area")) %>%
+  hc_title(text = "Change in Population Over Time") %>%
+  hc_plotOptions(series = list(marker = list(enabled = TRUE)))
+```
+
+## Visits
+
+While visits were down in 2024, there were still more than 21,500 people who came to the Cache County Library physically. Digital material use - e.g., Libby - has increased which may mean that some people are using library services remotely rather than coming in person. 
+
+```{r}
+visits_graph <- cache %>%
+  filter(Year %in% c(2021:2024)) %>%
+  mutate(
+    value = as.numeric(
+      Physical.Visits
+    )
+  )
+
+# Create highchart
+highchart() %>%
+  hc_add_series(
+    visits_graph,
+    type = "line",
+    hcaes(x = Year, y = value),
+    showInLegend = F
+  ) %>%
+  hc_tooltip(
+    pointFormat = paste0(
+      "<b>Visits:</b> {point.y:,.0f}<br>",
+      "{point.x}"
+    ),
+    headerFormat = ""
+  ) %>%
+  hc_xAxis(allowDecimals = FALSE) %>%
+  hc_yAxis(title = list(text = "Visits")) %>%
+  hc_title(text = "Visits Over Time") %>%
+  hc_plotOptions(series = list(marker = list(enabled = TRUE)))
+```
+
+## Circulation
+
+Circulation of library materials has remained steady for several years, with Libby checkouts increasing year-to-year.
+
+```{r}
+circ_graph <- cache %>%
+  filter(Year %in% c(2021:2024)) %>%
+  reframe(
+    Year = Year,
+    `Total Physical Circulation` = Total.Circulation,
+    `Physical Checkouts` = Physical.Checkouts,
+    `Libby Checkouts` = Libby.Checkouts,
+    `DVD Checkouts` = DVD.Checkouts,
+    `Kit Checkouts` = Kit.Checkouts
+  ) %>%
+  pivot_longer(!Year, names_to = "Metric", values_to = "value")
+
+# Create highchart
+highchart() %>%
+  hc_add_series(
+    circ_graph,
+    type = "line",
+    hcaes(x = Year, y = value, group = Metric)
+  ) %>%
+  hc_tooltip(
+    pointFormat = paste0(
+      "<b>{point.Metric}:</b> {point.y:,.0f}<br>",
+      "{point.x}"
+    ),
+    headerFormat = ""
+  ) %>%
+  hc_xAxis(allowDecimals = FALSE) %>%
+  hc_yAxis(title = list(text = "Circulation")) %>%
+  hc_title(text = "Circulation Over Time") %>%
+  hc_plotOptions(series = list(marker = list(enabled = TRUE)))
+```
+
+## Program Participation
+
+Program participation has remained steady for the past several years, with over 2,000 people benefiting from library programs.
+
+```{r}
+program_graph <- cache %>%
+  filter(Year %in% c(2021:2024)) %>%
+  reframe(
+    Year = Year,
+    `Total Program Participants` = Total.Programming.Participants,
+    `Storytime Participants` = Storytime.Participants,
+    `Summer Reading Participants` = Summer.Reading.Participants
+  ) %>%
+  pivot_longer(!Year, names_to = "Metric", values_to = "value")
+
+# Create highchart
+highchart() %>%
+  hc_add_series(
+    program_graph,
+    type = "line",
+    hcaes(x = Year, y = value, group = Metric)
+  ) %>%
+  hc_tooltip(
+    pointFormat = paste0(
+      "<b>{point.Metric}:</b> {point.y:,.0f}<br>",
+      "{point.x}"
+    ),
+    headerFormat = ""
+  ) %>%
+  hc_xAxis(allowDecimals = FALSE) %>%
+  hc_yAxis(title = list(text = "Program Participation")) %>%
+  hc_title(text = "Program Participation Over Time") %>%
+  hc_plotOptions(series = list(marker = list(enabled = TRUE)))
+```
+
+:::
+
+## How much are staff handling in 2024?
+
+Each employee is responsible for a high volume of service. The table below illustrates the average workload per employee. 
+
+In 2024, Cache County Library had 4 employees, 3 part time and 1 full time. The table below assumes an equal workload, but of course it won't be entirely accurate. Because there are 3 part time staff members, *a more accurate table would show a higher workload*.
+
+NOTE: This table is a workload proxy - it does not show actual numbers for staff work. 
+
+```{r}
+staff_handle <- cache %>%
+  filter(Year == 2024) %>%
+  mutate(staff = Full.Time.Staff + Part.Time.Staff) %>%
+  select(
+    staff,
+    Population = Population.of.Legal.Service.Area,
+    Physical.Visits,
+    Accounts = All.Accounts,
+    Circulation = Total.Circulation,
+    Program.Participants = Total.Programming.Participants
+  ) %>%
+  pivot_longer(
+    !staff,
+    names_to = "Metric",
+    values_to = "Values"
+  ) %>%
+  mutate(
+    Values = as.numeric(Values),
+    handle = round(Values / staff, 2),
+    Metric = gsub("\\.", " ", Metric),
+    Metric = paste0(Metric, " Per Staff Member")
+  )
+
+staff_handle %>%
+  select(Metric, handle) %>%
+  #arrange(desc(handle)) %>%
+  reactable(
+    resizable = T,
+    defaultExpanded = F,
+    compact = T,
+    striped = T,
+    theme = reactableTheme(
+      backgroundColor = "transparent",
+      headerStyle = list(borderColor = "#555")
+    ),
+    columns = list(
+      Metric = colDef(name = ""),
+      handle = colDef(
+        name = "",
+        format = colFormat(separators = TRUE, digits = 2)
+      )
+    )
+  )
+
+```
