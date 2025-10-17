@@ -61,7 +61,7 @@ past_year_df %<>%
 
 Cache County Library has seen an increase in its number of card holders and Libby users above and beyond the growth in population this past year. Physical visits were slightly down, but use of electronic services was up. 
 
-Since 2025 still has a couple of months it's numbers haven't been included here, but the number of program participants has already surpassed 5,000, the number of new accounts is already above 2024's by over 120, and the number of Libby users continues to rise.
+Since the numbers for 2025 are still being gathered, 2025 hasn't been included here. However, as of early October, 2025, the number of program participants has already surpassed 5,000, the number of new accounts is already above 2024's by more than 120, and the number of Libby users continues to rise.
 
 ```{r}
 overview <- past_year_df %>%
@@ -113,7 +113,9 @@ overview %>%
 
 ## Services
 
-Use of all services is up from last year, aside from slight dips in visits and computer sessions. Libby use in particular has seen a significant increase. 
+Use of all services is up from last year, aside from slight dips in visits and computer sessions. The Cache County Library also obtains Inter Library Loans (ILLs) from other libraries when items that a patron would like to check out are not in the current collection. 
+
+Digital material use - e.g., Libby - has seen a significant increase which means that patrons are using library services remotely in addition to coming in person. This may be greatly useful for county residents without city library service who live far away from Cache County Library's physical location. 
 
 ```{r}
 services <- past_year_df %>%
@@ -214,6 +216,8 @@ budget %>%
 
 Circulation of Kits and Libby materials both saw an increase from 2023 to 2024, and while physical checkouts are slightly down there were still over 42,000 items checked out by patrons. 
 
+Kits were very popular, and the increase in checkouts demonstrates that the Cache County Library has been able to meet increasing demand for items that patrons value.
+
 ```{r}
 circ <- past_year_df %>%
   filter(
@@ -264,7 +268,9 @@ circ %>%
 
 ## Programs
 
-The overall number of programming participants has remained steady compared to the previous year, with over 2,000 people attending programs offered by the Cache County Library. Many of these attendants are children attending Storytime. The Library's Summer Reading Program had an increase of over 100 participants in 2024.
+The overall number of programming participants has remained steady compared to the previous year, with over 2,000 people attending programs offered by the Cache County Library. Many of these attendants are children attending Storytime. The Library's Summer Reading Program had an increase of over 100 participants in 2024. 
+
+Storytime and Summer Reading Programs are very helpful in growing and maintaining children's reading skills, particularly during the Summer when schools are not in session.
 
 ```{r}
 programs <- past_year_df %>%
@@ -320,6 +326,8 @@ programs %>%
 
 Cache County Library serves all people in the county, but particularly those people who don't already have city library service. This graph shows the population in Cache County that is not already served by another library. The Utah State Library defines this as the library's Legal Service Area. 
 
+As of 2024, Cache County Library is serving over 30,000 county residents who would not otherwise have library service (about 21% of county residents), in addition to serving the entire county population of over 145,000. 
+
 ```{r}
 population_graph <- cache %>%
   filter(Year %in% c(2021:2024)) %>%
@@ -352,7 +360,9 @@ highchart() %>%
 
 ## Patrons
 
-While visits were down in 2024, there were still more than 21,500 people who came to the Cache County Library physically. Digital material use - e.g., Libby - has increased which may mean that some people are using library services remotely rather than coming in person. The number of patron accounts has steadily increased across the years, and patrons are also coming in to use the computers at the library.
+The number of visits to the Cache County Library has steadily remained at over 21,000 per year. The number of patron accounts has steadily increased across the years, and patrons are also coming in to use the computers at the library.
+
+Digital material use - e.g., Libby - has consistently increased year-to-year which means that patrons are using library services remotely in addition to coming in person. This may be greatly useful for county residents without city library service who live far away from Cache County Library's physical location. 
 
 ```{r}
 visits_graph <- cache %>%
@@ -388,7 +398,7 @@ highchart() %>%
 
 ## Circulation
 
-Circulation of library materials has remained steady for several years, with Libby checkouts increasing year-to-year.
+Circulation of library materials has remained steady for several years, with Libby checkouts increasing year-to-year. Kit checkouts have increased dramatically, demonstrating that the Cache County Library has been able to meet increasing demand for items that patrons value.
 
 ```{r}
 circ_graph <- cache %>%
@@ -425,7 +435,7 @@ highchart() %>%
 
 ## Program Participation
 
-Program participation has remained steady for the past several years, with over 2,000 people benefiting from library programs. Since 2025 still has a few months it hasn't been included here, but the number of program participants has already passed 5,000.
+Program participation has remained steady for the past several years, with over 2,000 people benefiting from library programs. Since numbers for 2025 are still being collected, they haven't been included here, but the number of program participants in 2025 has already passed 5,000.
 
 ```{r}
 program_graph <- cache %>%
